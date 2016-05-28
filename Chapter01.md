@@ -14,7 +14,7 @@
 操作系统内核分为单内核、微内核（、外内核）：
 单内核中的所有内核服务都运行在一个大的内核地址空间上，可以直接调控函数，而微内核则是将空能划分成多个独立的过程，需要采用进程间通信IPC机制互通消息，互换服务。
 Linux属于单内核，运行在单独的内核地址空间上。但是也借鉴了微内核的设计：模块化设计、抢占式内核、支持内核线程以及动态装载内核模块。和单内核的保持性能的设计一致，Linux让所有的事情都运行在内核态，直接调用函数，无需消息传递。
-![image](https://github.com/Rouen007/luangss.github.io/blob/master/image-lib/1.2.PNG)
+![image](https://github.com/Rouen007/luangss.github.io/blob/master/image-lib/1.2.png)
 
 Linux 支持：
 支持动态加载内核模块
