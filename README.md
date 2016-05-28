@@ -5,7 +5,7 @@
 内核属于系统态拥有保护内存空间以及访问硬件设备的所有权限而应用程序属于用户态，用户态只对部分资源可见。
 应用程序通过系统调用与内核通信。应用程序通过调用库函数再由库函数通过系统调用界面，让内核代表其完成不同任务。
 
-![image](https://github.com/Rouen007/luangss.github.io/tree/master/image-lib/1.1.png)
+![image](https://github.com/Rouen007/luangss.github.io/blob/master/image-lib/1.1.PNG)
 ##处理器的活动：
 1. 运行于用户空间，执行用户进程；
 2. 运行于内核空间，处于进程上下文，代表某个特定进程的执行；
