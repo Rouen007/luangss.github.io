@@ -15,4 +15,8 @@
 
 内核把进程的列表存放在叫任务队列（task list）的双向循环列表中
 
-![image]()
+![image](![image](https://github.com/Rouen007/luangss.github.io/blob/master/image-lib/3.1.PNG))
+
+进程描述符中包含一个具体进程所需的所有信息（它打开的文件，进程的地址，挂起的信号，进程的状态等）
+
+![image](![image](https://github.com/Rouen007/luangss.github.io/blob/master/image-lib/3.2.PNG))
