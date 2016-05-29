@@ -22,3 +22,19 @@
 ![image](https://github.com/Rouen007/luangss.github.io/blob/master/image-lib/3.2.PNG)
 
 进程标识PID和线程标识TID对于同一个进程或线程来说都是相等的。
+
+##进程状态
+运行、可中断、不可中断、被其他进程跟踪、停止
+
+运行（TASK_RUNNING）：进程是可执行的：正在执行、在队列中等待执行。
+可中断（TASK_INTERRUPTIBLE）：进程正在睡眠（阻塞），等待某些条件。
+不可中断（TASK_UNITERRUPTIBLE）
+被其他进程跟踪（__TASK_TRACED）
+停止（__TASK_STOPPED）
+
+![image](https://github.com/Rouen007/luangss.github.io/blob/master/image-lib/3.3.PNG)
+
+
+一个程序通过执行系统调用、触发异常陷入内核空间----内核代表进程执行，并处于**进程上下文中**。
+
+每个进程都有父进程（*parent），若干子进程（*children list）
