@@ -73,5 +73,50 @@ nice值的范围是-20～+19，值越大优先级越低，也就是说nice值为-20的进程优先级最大。
 
 3）运行完后，扣除运行进程的CPU时间，再回到 1）
 
+##Linux调度算法
+Linux上的调度算法是不断发展的，在2.6.23内核以后，采用了**“完全公平调度算法”**，简称CFS。---针对普通进程的调度类。
+CFS完全摒弃时间片，分配给进程一个处理器使用的比重。
+CFS：允许每个进程运行一段时间、循环轮转、选择运行最少的进程作为下一个运行的进程，CFS在所有可运行进程的总数的基础上计算出一个进程应该运行多久。依赖NICE值分配使用权重（而不再是分配时间片）。
+可运行任务的数量区域无穷，每个线程能获得的运行时间将趋于0。最小运行时间的约束--*最小粒度*
 
+##Linux调度的实现
+其实Linux上的调度器是以模块方式提供的，每个调度器有不同的优先级，所以可以同时存在多种调度算法。
+每个进程可以选择自己的调度器，Linux调度时，首先按调度器的优先级选择一个调度器，再选择这个调度器下的进程。
+
+时间记账、进程选择、调度器入口、睡眠与唤醒
+虚拟实时：vruntime变量存放进程的虚拟运行时间：记录一个程序已经运行了多久，还需要运行多久。
+当CFS需要选择下一个运行的进程的时候，会挑选具有最小vruntime值的进程（红黑树）
+
+
+CFS算法在分配每个进程的CPU时间时，不是分配给它们一个绝对的CPU时间，而是根据进程的优先级分配给它们一个占用CPU时间的百分比。
+
+比如ProcessA(NI=1)，ProcessB(NI=3)，ProcessC(NI=6)，在CFS算法中，分别占用CPU的百分比为：ProcessA(10%)，ProcessB(30%)，ProcessC(60%)
+
+因为总共是100%，ProcessB的优先级是ProcessA的3倍，ProcessC的优先级是ProcessA的6倍。
+
+Linux上的CFS算法主要有以下步骤：(还是以ProcessA(10%)，ProcessB(30%)，ProcessC(60%)为例)
+
+1)计算每个进程的vruntime(注1)，通过update_curr()函数更新进程的vruntime。
+2)选择具有最小vruntime的进程投入运行。（注2）
+3)进程运行完后，更新进程的vruntime，转入步骤2) （注3）
+
+注1. 这里的vruntime是进程虚拟运行的时间的总和。vruntime定义在：kernel/sched_fair.c 文件的 struct sched_entity 中。
+注2. 这里有点不好理解，根据vruntime来选择要运行的进程，似乎和每个进程所占的CPU时间百分比没有关系了。
+1）比如先运行ProcessC，(vr是vruntime的缩写)，则10ms后：ProcessA(vr=0)，ProcessB(vr=0)，ProcessC(vr=10)
+2）那么下次调度只能运行ProcessA或者ProcessB。(因为会选择具有最小vruntime的进程)
+长时间来看的话，ProcessA、ProcessB、ProcessC是公平的交替运行的，和优先级没有关系。
+而实际上vruntime并不是实际的运行时间，它是实际运行时间进行加权运算后的结果。
+比如上面3个进程中ProcessA(10%)只分配了CPU总的处理时间的10%，那么ProcessA运行10ms的话，它的vruntime会增加100ms。
+以此类推，ProcessB运行10ms的话，它的vruntime会增加(100/3)ms,ProcessC运行10ms的话，它的vruntime会增加(100/6)ms。
+实际的运行时，由于ProcessC的vruntime增加的最慢，所以它会获得最多的CPU处理时间。
+上面的加权算法是我自己为了理解方便简化的，Linux对vruntime的加权方法还得去看源码^-^
+注3.Linux为了能快速的找到具有最小vruntime，将所有的进程的存储在一个红黑树中。这样树的最左边的叶子节点就是具有最小vruntime的进程，新的进程加入或有旧的进程退出时都会更新这棵树。
+
+调度器入口
+睡眠和唤醒
+睡眠（被阻塞）的进程处于一个特殊的不可执行的状态，等待某个事件的发生。
+睡眠：从执行红黑树中移出，放入等待列表。
+唤醒：从等待队列中移出到可执行红黑树中。
+
+![image](https://github.com/Rouen007/luangss.github.io/blob/master/image-lib/4.1.PNG)
 
