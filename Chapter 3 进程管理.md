@@ -32,9 +32,28 @@
 被其他进程跟踪（__TASK_TRACED）
 停止（__TASK_STOPPED）
 
-![image](https://github.com/Rouen007/luangss.github.io/blob/master/image-lib/3.3.PNG)
+![image](https://github.com/Rouen007/luangss.github.io/blob/master/image-lib/3.3.png)
 
 
 一个程序通过执行系统调用、触发异常陷入内核空间----内核代表进程执行，并处于**进程上下文中**。
 
-每个进程都有父进程（*parent），若干子进程（*children list）
+每个进程都有父进程（parent ptr），若干子进程（children ptr list）
+
+## 进程创建
+Linux中创建进程与其他系统有个主要区别，Linux中创建进程分2步：fork()和exec()。
+
+fork: 通过拷贝当前进程创建一个子进程。子进程与父进程的区别在于：PID、PPID和某些资源和统计量（挂起的信号）
+Linux中fork()采用写时拷贝，内核不需要复制整个进程地址空间，而是让父子共享同一拷贝，只有在写入数据的时候，才复制数据。
+fork的开销往往在于复制父进程的页表以及为子进程创建唯一的进程描述符。(由于fork执行之后往往立即调用exec，避免了复制大量不需要的数据)
+创建的流程：
+
+1. 调用dup_task_struct()为新进程分配内核栈，thread_info，task_struct等，其中的内容与父进程相同。
+2. check新进程(进程数目是否超出上限等)
+3. 清理新进程的信息(比如PID置0等)，使之与父进程区别开。task_struct中大多数数据未修改。
+4. 新进程状态置为 TASK_UNINTERRUPTIBLE，不会投入运行。
+5. 更新task_struct的flags成员。
+6. 调用alloc_pid()为新进程分配一个有效的PID。
+7. 根据clone()的参数标志，拷贝或共享相应的信息。
+8. 做一些扫尾工作并返回子进程指针。
+
+exec: 读取可执行文件，将其载入到内存（地址空间）中运行。
