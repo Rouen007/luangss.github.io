@@ -46,8 +46,11 @@ member则是type中定义链表节点是用的名字
 
 struct student
 {
+
     int id;
+	
     char* name;
+	
     struct list_head list;
 };
 type是struct student
@@ -116,11 +119,16 @@ Linux中的映射并不是一种通用的映射，它的目标是映射一个唯
 struct rb_node
 {
     unsigned long  rb_parent_color;
+	
 \#define    RB_RED        0
+
 \#define    RB_BLACK    1
+
     struct rb_node *rb_right;
+	
     struct rb_node *rb_left;
-} __attribute__((aligned(sizeof(long))));
+	
+} \__attribute__((aligned(sizeof(long))));
 作者巧妙的利用内存对齐来将2个内容存入到一个字段中（不服不行啊^_^!）。
 字段 rb_parent_color 中保存了2个信息：父节点的地址+本节点的颜色
 这2个信息是如何存入一个字段的呢？主要在于 __attribute__((aligned(sizeof(long))));
