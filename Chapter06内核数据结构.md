@@ -32,11 +32,11 @@ linux链表中的最大问题是怎样通过链表的节点来取得用户数据
 
 整个list.h文件中，我觉得最复杂的代码就是获取用户数据的宏定义
 
-#define list_entry(ptr, type, member) \
+\#define list_entry(ptr, type, member) \
     container_of(ptr, type, member)
 这个宏没什么特别的，主要是container_of这个宏
 
-#define container_of(ptr, type, member) ({          \
+\#define container_of(ptr, type, member) ({          \
     const typeof(((type *)0)->member)*__mptr = (ptr);    \
              (type *)((char *)__mptr - offsetof(type, member)); })
 这里面的type一般是个结构体，也就是包含用户数据和链表节点的结构体。
@@ -63,7 +63,7 @@ const typeof(((type *)0)->member)*__mptr = (ptr);
 
 // 步骤3：计算member字段距离type中第一个字段的距离，也就是type地址和member地址之间的差
 // offset(type, member)也是一个宏，定义如下：
-#define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
+\#define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
 
 // 步骤4：将__mptr的地址 - type地址和member地址之间的差
 // 其实也就是获取type的地址
@@ -116,8 +116,8 @@ Linux中的映射并不是一种通用的映射，它的目标是映射一个唯
 struct rb_node
 {
     unsigned long  rb_parent_color;
-#define    RB_RED        0
-#define    RB_BLACK    1
+\#define    RB_RED        0
+\#define    RB_BLACK    1
     struct rb_node *rb_right;
     struct rb_node *rb_left;
 } __attribute__((aligned(sizeof(long))));
