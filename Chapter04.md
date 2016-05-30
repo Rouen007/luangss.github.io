@@ -120,3 +120,20 @@ Linux上的CFS算法主要有以下步骤：(还是以ProcessA(10%)，ProcessB(30%)，ProcessC(60
 
 ![image](https://github.com/Rouen007/luangss.github.io/blob/master/image-lib/4.1.PNG)
 
+##抢占和上下文切换
+上下文切换：从一个可执行进程切换到另一个可执行进程。
+用户抢占：发生在：从系统调用分会用户空间时；从中断处理程序返回用户空间时。
+内核抢占：只要没有持有锁，内核就可以抢占。
+内核的抢占发生在：中断处理程序正在执行，且返回内核空间之前；内核代码再一次具有可抢占性；内核显示地调用schedule()；内核有任务阻塞（调用schedule()）。
+
+##实时调度策略
+--SCHED_FIFO，SCHED_RR
+SCHED_FIFO进程处于可执行状态时将一直执行下去知道受阻塞或显示地释放处理器。只有优先级更高的SCHED_FIFO，SCHED_RR能够抢占。不具有时间片。
+SCHED_RR是带有时间片的SCHED_FIFO，SCHED_RR在耗尽事前分配给的时间片之后就无法继续执行了。是一种实时轮流的调度算法。SCHED_RR在耗尽时间片时，同一优先级的其他实时进程将被轮流调度
+
+##调度相关的系统调用
+调度相关的系统调用主要有2类：
+1) 与调度策略和进程优先级相关 (就是上面的提到的各种参数，优先级，时间片等等) - 下表中的前8个
+2) 与处理器相关 - 下表中的最后3个
+
+![image](https://github.com/Rouen007/luangss.github.io/blob/master/image-lib/4.2.PNG)
