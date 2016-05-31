@@ -100,5 +100,35 @@ ret_from_intr 恢复寄存器，将内核恢复到中断前的状态
 ![image](https://github.com/Rouen007/luangss.github.io/blob/master/image-lib/7.2.PNG)
 ![image](https://github.com/Rouen007/luangss.github.io/blob/master/image-lib/7.3.PNG)
 
+##总结
+中断过程所做的工作包括应答并重新设置硬件，从设备拷贝数据到内存以及反之，处理硬件请求，并发送新的硬件请求。
+
+中断处理对处理时间的要求很高，如果一个中断要花费较长时间，那么中断处理一般分为2部分。
+
+上半部只做一些必要的工作后，立即通知硬件继续自己的工作。
+
+中断处理中耗时的部分，也就是下半部的工作，CPU会在适当的时候去完成。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
