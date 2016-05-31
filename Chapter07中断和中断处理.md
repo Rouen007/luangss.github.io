@@ -31,11 +31,74 @@
  
 同步中断应该处理能很快完成的一种中断。
 
+上半部分与下半部分
+
+Linux中的中断程序是不需要重入的。当一个给定的中断处理程序正在执行时，相应的中断线在所有处理器上都会被屏蔽掉，以防在同一个中断线上接收另一个新的中断。通常情况下，所有的其他中断都是打开的，所以这些不同的中断线上的其他中断都能被处理，但当前中断线总是被禁止的。由此可以看出，同一中断处理程序绝不会被同时调用以处理嵌套的中断。
+
+##中断相关函数
+
+实现一个中断，主要需要知道3个函数：
+1. 注册中断的函数
+2. 释放中断的函数
+3. 中断处理程序的声明
+###注册中断的函数
+位置：<linux/interrupt.h>  include/linux/interrupt.h
+/\*
+ \* irg     - 表示要分配的中断号
+ \* handler - 实际的中断处理程序
+ \* flags   - 标志位，表示此中断的具有特性
+ \* name    - 中断设备名称的ASCII 表示，这些会被/proc/irq和/proc/interrupts文件使用
+ \* dev     - 用于共享中断线，多个中断程序共享一个中断线时(共用一个中断号)，依靠dev来区别各个中断程序
+ \* 返回值：
+ \* 执行成功：0
+ \* 执行失败：非0
+ \*/
+int request_irq(unsigned int irq,
+                irq_handler_t handler,
+                unsigned long flags,
+                const char* name,
+                void *dev)
 
 
 
+###释放中断的函数
+定义比较简单：
+
+void free_irq(unsigned int irq, void *dev)
+如果不是共享中断线，则直接删除irq对应的中断线。
+
+如果是共享中断线，则判断此中断处理程序是否中断线上的最后一个中断处理程序:
+是最后一个中断处理程序 -> 删除中断线和中断处理程序
+不是最后一个中断处理程序 -> 删除中断处理程序
 
 
+###中断处理程序的声明
+/\* 
+ \* 中断处理程序的声明
+ \* @irp  - 中断处理程序(即request_irq()中handler)关联的中断号
+ \* @dev  - 与 request_irq()中的dev一样，表示一个设备的结构体
+ \* 返回值：
+ \* irqreturn_t -  执行成功：IRQ_HANDLED  执行失败：IRQ_NONE
+ \*/
+static irqreturn_t intr_handler(int, irq, void *dev)
+
+
+**中断上下文**：当执行一个中断处理程序时，内核处于中断上下文。（进程上下文是一种内核所处的操作模式，内核代表进程执行，e.g.，执行系统调用或运行内核进程的时候。进程上下文可以睡眠，也可以调用调度程序）
+中断上下文与进程无关，因为没有后备程序，中断上下文不能睡眠，不能从中断上下文中调用某些函数
+
+##中断处理机制
+
+中断处理的过程主要涉及3函数：
+
+do_IRQ 与体系结构有关，对所接收的中断进行应答
+handle_IRQ_event 调用中断线上所有中断处理
+ret_from_intr 恢复寄存器，将内核恢复到中断前的状态
+ 
+
+处理流程可以参见书中的图，如下：
+![image](https://github.com/Rouen007/luangss.github.io/blob/master/image-lib/7.1.PNG)
+![image](https://github.com/Rouen007/luangss.github.io/blob/master/image-lib/7.2.PNG)
+![image](https://github.com/Rouen007/luangss.github.io/blob/master/image-lib/7.3.PNG)
 
 
 
