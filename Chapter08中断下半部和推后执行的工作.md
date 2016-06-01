@@ -34,12 +34,36 @@ tasklet是一种基于软中断实现的灵活性强，动态创建的下半部�
 一个软中断不会抢占另一个软中断，唯一可以抢占软中断的是中断处理程序。
 软中断处理程序执行的时候，允许相应中断，但它自己不能休眠。
 ![image](https://github.com/Rouen007/luangss.github.io/blob/master/image-lib/8.1.PNG)
+
 1. 分配索引
 2. 注册处理程序
 3. 触发软中断
 
+##tasklet
+tasklet也是利用软中断来实现的，但是它提供了比软中断更好用的接口(其实就是基于软中断又封装了一下)，
+
+所以除了对性能要求特别高的情况，一般建议使用tasklet来实现自己的中断。
 
 
+tasklet对应的结构体在 <linux/interrupt.h> 中
+
+struct tasklet_struct
+{
+    struct tasklet_struct \*next; /\* 链表中的下一个tasklet \*/
+    unsigned long state;         /\* tasklet状态 \*/
+    atomic_t count;              /\* 引用计数器 \*/
+    void (*func)(unsigned long); /\* tasklet处理函数 \*/
+    unsigned long data;          /\* tasklet处理函数的参数 \*/
+};
+tasklet状态state只有3种值：
+
+值 0 表示该tasklet没有被调度
+值 TASKLET_STATE_SCHED 表示该tasklet已经被调度
+值 TASKLET_STATE_RUN 表示该tasklet已经运行
+引用计数器count 的值不为0，表示该tasklet被禁止。
+
+ 
+在设计软中断的时候：最终在内核中实现的方案是：不会立即处理重新触发的软中断，作为改进，当大量软中断出现的时候，内核会唤醒一组内核进程来处理这些负载。这些线程在最低的优先级上运行，避免跟重要任务抢占资源。
 
 
 
