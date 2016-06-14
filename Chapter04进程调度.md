@@ -48,7 +48,7 @@ nice值的范围是-20～+19，值越大优先级越低，也就是说nice值为-20的进程优先级最大。
 假设系统中只有3个进程ProcessA(NI=+10)，ProcessB(NI=0)，ProcessC(NI=-10)，NI表示进程的nice值，时间片=10ms
 
 1)调度前，把进程优先级按一定的权重映射成时间片(这里假设优先级高一级相当于多5msCPU时间)。
-假设ProcessA分配了一个时间片10ms，那么ProcessB的优先级比ProcessA高10(nice值越小优先级越高)，ProcessB应该分配10*5+10=60ms，以此类推，ProcessC分配20*5+10=110ms
+假设ProcessA分配了一个时间片10ms，那么ProcessB的优先级比ProcessA高10(nice值越小优先级越高)，ProcessB应该分配10X5+10=60ms，以此类推，ProcessC分配20X5+10=110ms
 
 2)开始调度时，优先调度分配CPU时间多的进程。由于ProcessA(10ms),ProcessB(60ms),ProcessC(110ms)。显然先调度ProcessC
 
